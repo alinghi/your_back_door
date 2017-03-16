@@ -19,10 +19,21 @@ char buffer[BUFF_SIZE];
 static bool is_running = true;
 
 void usageExit() {
-    // TODO: show usage
+    //show usage
     printf("USAGE: ./interpreter [bytecode_file_name]\n");
+    //exit with failure
     exit(1);
 }
+
+void halt(struct VMContext* ctx, const uint32_t instr) {
+    //This printf statement is for debug purpose
+    //Will be changed to comment at final commit
+    printf("Halt\n");
+    
+    //Motivated by P.Conrad's arith.c
+    is_running = false; 
+} 
+
 
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
@@ -31,7 +42,7 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     }
 
     // TODO: initialize function pointers
-    // f[0x00] = halt;
+    f[0x00] = halt;
     // f[0x10] = load;
 }
 
@@ -94,7 +105,7 @@ int main(int argc, char** argv) {
     program_counter=0;
 
     while (is_running) {
-        // TODO: Read 4-byte bytecode, and set the pc accordingly
+        //Read 4-byte bytecode, and set the pc accordingly
         stepVMContext(&vm, &pc);
         program_counter++;
     }
