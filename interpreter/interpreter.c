@@ -26,12 +26,46 @@ void usageExit() {
 }
 
 void halt(struct VMContext* ctx, const uint32_t instr) {
+    /*
+    This instruction does not require any operand. This instruction
+    simply terminates the current process.
+    */
+
     //This printf statement is for debug purpose
     //Will be changed to comment at final commit
-    printf("Halt\n");
-    
+    printf("--Halt--\n");
+
+
+
     //Motivated by P.Conrad's arith.c
     is_running = false; 
+}
+
+void puti(struct VMContext* ctx, const uint32_t instr) {
+    /*
+    This instruction moves an 8-bit immediate value to a register. The
+    upper 24-bit of the destination register is zeroed out.
+    */
+
+    //Extract Operand1 as register Operand2 as immediate
+    const uint8_t destination_register = EXTRACT_B1(instr); 
+    const uint8_t immediate = EXTRACT_B2(instr);
+
+    //This printf statement is for debug purpose
+    //Will be changed to comment at final commit
+    printf("--Puti--\n");
+    printf("destination_register : %d, %x\n",destination_register,destination_register);
+    printf("immediate : %d, %x\n",immediate,immediate); 
+
+
+
+    //Actual Operation
+    ctx->r[destination_register].value=immediate;
+    
+    //Test Purpose Printf
+    printf("check %d = %d\n",ctx->r[destination_register].value,immediate);
+
+
 } 
 
 
@@ -43,6 +77,7 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
 
     // TODO: initialize function pointers
     f[0x00] = halt;
+    f[0x40] = puti;
     // f[0x10] = load;
 }
 
