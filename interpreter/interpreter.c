@@ -9,11 +9,18 @@
 #define NUM_REGS   (256)
 #define NUM_FUNCS  (256)
 
+// Buffer declaration motivated by P. Conrad's arith.c
+// Upto 256 instructor(issue number 66 in GIT)
+#define BUFF_SIZE 1024 
+char buffer[BUFF_SIZE]; 
+
+
 // Global variable that indicates if the process is running.
 static bool is_running = true;
 
 void usageExit() {
     // TODO: show usage
+    printf("USAGE: ./interpreter [bytecode_file_name]\n");
     exit(1);
 }
 
@@ -44,6 +51,16 @@ int main(int argc, char** argv) {
     FILE* bytecode;
     uint32_t* pc;
 
+    //Heap declaration
+    uint8_t* heap;
+
+    // Buffer declaration motivated by P. Conrad's arith.c
+    // Upto 256 instructor(issue number 66 in GIT)
+    char buffer[BUFF_SIZE];
+    int bytes_loaded;//bytes_loaded
+    int program_counter;//program_counter
+
+
     // There should be at least one argument.
     if (argc < 2) usageExit();
 
@@ -61,9 +78,25 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // Read bytecode
+    bytes_loaded = fread((void*)&buffer, 1, 1024, bytecode);
+    pc = (uint32_t*) &buffer;
+
+    // Allocate Heap(8192)
+    heap=(uint8_t*)malloc(8192);
+    // Check allocation fail
+    if(heap==NULL){
+        fprintf(stderr,"heap allocation failed\n");
+        exit(1);
+    }
+
+    // Init program_counter
+    program_counter=0;
+
     while (is_running) {
         // TODO: Read 4-byte bytecode, and set the pc accordingly
         stepVMContext(&vm, &pc);
+        program_counter++;
     }
 
     fclose(bytecode);
