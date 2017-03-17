@@ -141,8 +141,61 @@ void puti(struct VMContext* ctx, const uint32_t instr) {
     
         //Test Purpose Printf
         printf("check %d = %d\n",ctx->r[destination_register].value,immediate);
-} 
+}
 
+void add(struct VMContext* ctx, const uint32_t instr){
+    //Extract Operand1 as destination register
+    //Operand2 as addition operand #1
+    //Operand3 as addition operand #2
+    const uint8_t destination_register = EXTRACT_B1(instr);
+    const uint8_t op1 = EXTRACT_B2(instr);        
+    const uint8_t op2 = EXTRACT_B3(instr);   
+
+    //Actual Operation
+    ctx->r[destination_register].value=(ctx->r[op1].value)+(ctx->r[op2].value);
+    
+    /*
+    printf("--Add--");
+    //test overflow - will be commented
+    ctx->r[138].value=0xffffffff;
+    ctx->r[139].value=0x00000001;
+    ctx->r[140].value=(ctx->r[138].value)+(ctx->r[139].value);
+    printf("%u + %u = %u\n",ctx->r[138].value,ctx->r[139].value,ctx->r[140].value);
+    //debug purpose printf
+    printf("A : %d + %d = %d\n",ctx->r[op1].value,ctx->r[op2].value,ctx->r[destination_register].value);
+    */    
+
+}
+
+void sub(struct VMContext* ctx, const uint32_t instr){
+    //Extract Operand1 as destination register
+    //Operand2 as addition operand #1
+    //Operand3 as addition operand #2
+    const uint8_t destination_register = EXTRACT_B1(instr);
+    const uint8_t op1 = EXTRACT_B2(instr);        
+    const uint8_t op2 = EXTRACT_B3(instr);   
+
+    //Actual Operation
+    ctx->r[destination_register].value=(ctx->r[op1].value)-(ctx->r[op2].value);
+    
+
+    /*
+    printf("--Sub--");
+    //test overflow - will be commented
+    ctx->r[138].value=0x00000000;
+    ctx->r[139].value=0xffffffff;
+    ctx->r[140].value=(ctx->r[138].value)-(ctx->r[139].value);
+    printf("%u - %u = %u\n",ctx->r[138].value,ctx->r[139].value,ctx->r[140].value);
+
+    ctx->r[138].value=0x00000000;
+    ctx->r[139].value=0x00000001;
+    ctx->r[140].value=(ctx->r[138].value)-(ctx->r[139].value);
+    printf("%u - %u = %u\n",ctx->r[138].value,ctx->r[139].value,ctx->r[140].value);
+    //debug purpose printf
+    printf("A : %d - %d = %d\n",ctx->r[op1].value,ctx->r[op2].value,ctx->r[destination_register].value);
+    */    
+
+}
 
 void initFuncs(FunPtr *f, uint32_t cnt) {
     uint32_t i;
@@ -156,6 +209,8 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x20] = store;
     f[0x30] = move;
     f[0x40] = puti;
+    f[0x50] = add;
+    f[0x60] = sub;
 
 }
 
