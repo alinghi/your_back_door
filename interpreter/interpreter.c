@@ -14,6 +14,9 @@
 #define BUFF_SIZE 1024 
 char buffer[BUFF_SIZE]; 
 
+//Heap declaration
+uint8_t* heap;
+
 
 // Global variable that indicates if the process is running.
 static bool is_running = true;
@@ -31,15 +34,74 @@ void halt(struct VMContext* ctx, const uint32_t instr) {
     simply terminates the current process.
     */
 
-    //This printf statement is for debug purpose
-    //Will be changed to comment at final commit
-    printf("--Halt--\n");
-
-
+        //This printf statement is for debug purpose
+        //Will be changed to comment at final commit
+        printf("--Halt--\n");
 
     //Motivated by P.Conrad's arith.c
     is_running = false; 
 }
+
+void load(struct VMContext* ctx, const uint32_t instr) {
+    /*
+    This instruction loads a 1-byte value from memory located at
+    address (the second register) into the first register. The high 24
+    bits are zeroed out. For example, load r0, r1 means: load
+    a 8-bit value from the address at r1 into r0.
+    */
+
+    //Extract Operand1 as destination register and Operand2 as memory address 
+    const uint8_t destination_register = EXTRACT_B1(instr); 
+    const uint8_t address_contain_register = EXTRACT_B2(instr);
+
+    int source_address=ctx->r[address_contain_register].value;
+
+        //This printf statement is for debug purpose
+        //Will be changed to comment at final commit
+        printf("--Load--\n");
+        printf("dest reg : %d source_address : %d \n",destination_register,source_address);
+
+    //Actual Load Operation
+    ctx->r[destination_register].value=heap[source_address];
+
+        //This printf statement is for debug purpose
+        //Will be changed to comment at final commit
+        printf("Heap Value: %d %x\n",heap[source_address],heap[source_address]);
+        printf("Heap Addr : %d\n",source_address);
+        printf("destination register status: %d %x\n",ctx->r[destination_register].value,ctx->r[destination_register].value);
+
+
+}
+
+void store(struct VMContext* ctx, const uint32_t instr) {
+    /*
+    This instruction stores a 1-byte value of the second register to
+    memory located at address (the first register). For example,
+    store r1, r2 means: store a byte value (the lower 8-bit
+    of r2) to memory address at r1.
+    */
+
+    //Extract Operand1 as destination address and Operand2 as source_register
+    const uint8_t address_contain_register = EXTRACT_B1(instr); 
+    const uint8_t source_register = EXTRACT_B2(instr);
+    int destination_address=ctx->r[address_contain_register].value;
+
+        //This printf statement is for debug purpose
+        //Will be changed to comment at final commit
+        printf("--Store--\n");
+    
+    //Actual Store Operation
+    //heap=source register lower8bit
+    heap[destination_address]=EXTRACT_B0(ctx->r[source_register].value);
+
+        //This printf statement is for debug purpose
+        //Will be changed to comment at final commit
+        printf("Heap Value: %d %x\n",heap[destination_address],heap[destination_address]);
+        printf("Heap Addr : %d\n",destination_address);
+        printf("Source register Value : %d %x\n",ctx->r[source_register].value,ctx->r[source_register].value);
+
+}
+
 
 void puti(struct VMContext* ctx, const uint32_t instr) {
     /*
@@ -47,7 +109,7 @@ void puti(struct VMContext* ctx, const uint32_t instr) {
     upper 24-bit of the destination register is zeroed out.
     */
 
-    //Extract Operand1 as register Operand2 as immediate
+    //Extract Operand1 as register and Operand2 as immediate
     const uint8_t destination_register = EXTRACT_B1(instr); 
     const uint8_t immediate = EXTRACT_B2(instr);
 
@@ -56,8 +118,6 @@ void puti(struct VMContext* ctx, const uint32_t instr) {
     printf("--Puti--\n");
     printf("destination_register : %d, %x\n",destination_register,destination_register);
     printf("immediate : %d, %x\n",immediate,immediate); 
-
-
 
     //Actual Operation
     ctx->r[destination_register].value=immediate;
@@ -75,10 +135,11 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
         f[i] = NULL;
     }
 
-    // TODO: initialize function pointers
+    //initialize function pointers
     f[0x00] = halt;
+    f[0x10] = load;
+    f[0x20] = store;
     f[0x40] = puti;
-    // f[0x10] = load;
 }
 
 void initRegs(Reg *r, uint32_t cnt)
@@ -97,8 +158,7 @@ int main(int argc, char** argv) {
     FILE* bytecode;
     uint32_t* pc;
 
-    //Heap declaration
-    uint8_t* heap;
+
 
     // Buffer declaration motivated by P. Conrad's arith.c
     // Upto 256 instructor(issue number 66 in GIT)
