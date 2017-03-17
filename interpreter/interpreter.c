@@ -102,6 +102,23 @@ void store(struct VMContext* ctx, const uint32_t instr) {
 
 }
 
+void move(struct VMContext* ctx, const uint32_t instr){
+    //Extract Operand 1 as dest_register and Operand 2 as source_register
+    const uint8_t destination_register = EXTRACT_B1(instr);
+    const uint8_t source_register = EXTRACT_B2(instr);
+
+    //Debug purpose printf
+    printf("--Move--\n");
+    printf("%d\n",ctx->r[source_register].value);
+
+    //Actual Operation
+    ctx->r[destination_register].value=ctx->r[source_register].value;
+
+    //Debug purpose printf
+    printf("%d=%d\n",ctx->r[destination_register].value,ctx->r[source_register].value);
+    printf("Dest Addr : %d\n",destination_register);
+    printf("Source Addr : %d\n",source_register);
+}
 
 void puti(struct VMContext* ctx, const uint32_t instr) {
     /*
@@ -113,19 +130,17 @@ void puti(struct VMContext* ctx, const uint32_t instr) {
     const uint8_t destination_register = EXTRACT_B1(instr); 
     const uint8_t immediate = EXTRACT_B2(instr);
 
-    //This printf statement is for debug purpose
-    //Will be changed to comment at final commit
-    printf("--Puti--\n");
-    printf("destination_register : %d, %x\n",destination_register,destination_register);
-    printf("immediate : %d, %x\n",immediate,immediate); 
+        //This printf statement is for debug purpose
+        //Will be changed to comment at final commit
+        printf("--Puti--\n");
+        printf("destination_register : %d, %x\n",destination_register,destination_register);
+        printf("immediate : %d, %x\n",immediate,immediate); 
 
     //Actual Operation
     ctx->r[destination_register].value=immediate;
     
-    //Test Purpose Printf
-    printf("check %d = %d\n",ctx->r[destination_register].value,immediate);
-
-
+        //Test Purpose Printf
+        printf("check %d = %d\n",ctx->r[destination_register].value,immediate);
 } 
 
 
@@ -139,7 +154,9 @@ void initFuncs(FunPtr *f, uint32_t cnt) {
     f[0x00] = halt;
     f[0x10] = load;
     f[0x20] = store;
+    f[0x30] = move;
     f[0x40] = puti;
+
 }
 
 void initRegs(Reg *r, uint32_t cnt)
